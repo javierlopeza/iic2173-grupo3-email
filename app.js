@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 let express = require('express')
 let bodyParser = require('body-parser')
 let morgan = require('morgan')
@@ -45,6 +47,7 @@ app.use(function (err, req, res, next) {
 
 app.listen(app.get('port'), () => {
     console.log('Node app is running on port', app.get('port'))
+    const emailListener = require('./config/emailListener')
 })
 
 module.exports = app // for testing

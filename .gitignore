@@ -60,3 +60,6 @@ typings/
 # node_modules
 /node_modules
 package-lock.json
+
+# mac files
+.DS_Store

@@ -12,6 +12,6 @@ router.get('/', function (req, res, next) {
         .send({success: true, message: 'Mail Bot - Grupo 3'})
 })
 
-router.post("/", controller.addToRedisQueue);
+router.post("/", controller.saveData);
 
 module.exports = router;
