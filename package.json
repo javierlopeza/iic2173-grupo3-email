@@ -1,0 +1,36 @@
+{
+  "name": "email",
+  "version": "1.0.0",
+  "description": "Email communication channel",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "export NODE_ENV=dev && node app.js",
+    "dev": "export NODE_ENV=dev && nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vjfuenzalida/iic2173-grupo3-email.git"
+  },
+  "author": "grupo3-arqui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vjfuenzalida/iic2173-grupo3-email/issues"
+  },
+  "homepage": "https://github.com/vjfuenzalida/iic2173-grupo3-email#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "morgan": "^1.9.0",
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "eslint": "^4.8.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "mocha": "^4.0.1",
+    "rewire": "^2.5.2"
+  }
+}
