@@ -12,7 +12,7 @@ const mailListener = new MailListener({
     port: 993,
     tls: true,
     searchFilter: ["UNSEEN"],
-    markSeen: true,
+    markSeen: false,
     fetchUnreadOnStart: true,
     mailParserOptions: {
         streamAttachments: true
@@ -44,7 +44,7 @@ mailListener.on("mail", function (mail, seqno, attributes) {
     // console.log("emailParsed", mail)
     let route,
         fileName
-    if(mail.attachments.length > 0) {        
+    if(mail.hasOwnProperty("attachments")) {        
         [route, fileName] = generateName(mail.attachments[0].contentId, mail.attachments[0].generatedFileName)
     } else {
         route = ""
