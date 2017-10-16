@@ -23,10 +23,12 @@ body = {
   token: "dad7asciha7..."
 }
 --------------- */
-router.get('/token', function (req, res, next) {
+router.post('/token', function (req, res, next) {
+	console.log('received')
 	if (!req.body.mail || !req.body.token) {
 		res.json({ success: false, msg: 'Please pass mail and token.' });
 	} else {
+		console.log('Im here')
 		var newUser = new User({
 			mail: req.body.mail,
 			token: req.body.token
@@ -36,7 +38,7 @@ router.get('/token', function (req, res, next) {
 			if (err) {
 				return res.json({ success: false, msg: 'Mail already exists.' });
 			}
-			res.json({ success: true, msg: 'Successful associated mail to token.' });
+			res.json({ success: true, msg: 'Successfull associated mail to token.' });
 		});
 	}
 	 

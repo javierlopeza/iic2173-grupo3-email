@@ -1,9 +1,8 @@
 const MailListener = require("mail-listener2")
 const controller = require('../controllers/controller')
-const sender = require('requestSender')
 const path = require('path')
 const fs = require('fs')
-
+const sender = require('./requestSender') 
 const directory = path.join(__dirname, '../attachments')
 
 const mailListener = new MailListener({
@@ -42,7 +41,6 @@ mailListener.on("error", function (err) {
 })
 
 mailListener.on("mail", function (mail, seqno, attributes) {
-    // console.log("emailParsed", mail)
     let route,
         fileName
     if(mail.hasOwnProperty("attachments")) {        

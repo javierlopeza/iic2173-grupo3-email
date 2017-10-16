@@ -1,4 +1,4 @@
-var request = require('request');
+var request = require('request')
 
 // ask for a specific product to Server. Request format:
 /* ------------
@@ -15,7 +15,9 @@ exports.askForAProduct = function(product, id) {
 		  followRedirect: true,
 		  maxRedirects: 10
 		}, function(error, response, body) {
-		  console.log(body);
+		  	console.log('error:', error); // Print the error if one occurred
+  			console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+  			console.log('body:', body); // Print the HTML
 		});
 }
 
@@ -34,7 +36,9 @@ exports.askForProducts = function() {
 		  followRedirect: true,
 		  maxRedirects: 10
 		}, function(error, response, body) {
-		  console.log(body);
+			console.log('error:', error); // Print the error if one occurred
+  			console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+  			console.log('body:', body); // Print the HTML
 		});
 }
 
@@ -45,7 +49,7 @@ GET /categories
 HEADERS:
 "Authorization" : "JWT dad7asciha7..."
 --------------- */
-exports.askForProducts = function() {
+exports.askForCategories = function() {
 	request({
 		  uri: "https://www.arqss8.ing.puc.cl/categories",
 		  method: "GET",
@@ -53,6 +57,8 @@ exports.askForProducts = function() {
 		  followRedirect: true,
 		  maxRedirects: 10
 		}, function(error, response, body) {
-		  console.log(body);
+		  	console.log('error:', error); // Print the error if one occurred
+  			console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+  			console.log('body:', body); // Print the HTML
 		});
 }
