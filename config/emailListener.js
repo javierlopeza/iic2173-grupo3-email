@@ -2,7 +2,8 @@ const MailListener = require("mail-listener2")
 const controller = require('../controllers/controller')
 const path = require('path')
 const fs = require('fs')
-const sender = require('./requestSender') 
+const rsender = require('./requestSender') 
+const msender = require('./emailSender')
 const directory = path.join(__dirname, '../attachments')
 
 const mailListener = new MailListener({
