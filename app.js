@@ -5,6 +5,18 @@ let bodyParser = require('body-parser')
 let morgan = require('morgan')
 let app = express()
 
+//Set up mongoose connection var dbLocal = "mongodb://127.0.0.1/tarea1";
+let mongoose = require('mongoose')
+mongoose.Promise = global.Promise
+let mongoDB = process.env.MONGO_DB
+let promise = mongoose.connect(mongoDB, {
+  useMongoClient: true
+})
+promise.then(function (db) {
+  var database = mongoose.connection
+  database.on('error', console.error.bind(console, 'MongoDB connection error:'))
+})
+
 // Configure application
 app.set('port', (process.env.PORT || 5000))
 
@@ -41,8 +53,7 @@ app.use(function (err, req, res, next) {
   res.locals.error = req
     .app
     .get('env') === 'development' ?
-    err :
-    {};
+    err : {};
 
   // render the error page
   res.status(err.status || 500);

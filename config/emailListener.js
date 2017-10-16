@@ -2,8 +2,8 @@ const MailListener = require("mail-listener2")
 const controller = require('../controllers/controller')
 const path = require('path')
 const fs = require('fs')
-const rsender = require('./requestSender')
-const msender = require('./emailSender')
+const rsender = require('../lib/requestSender')
+const msender = require('../lib/emailSender')
 const directory = path.join(__dirname, '../attachments')
 
 const mailListener = new MailListener({
@@ -42,32 +42,23 @@ mailListener.on("error", function (err) {
 })
 
 mailListener.on("mail", function (mail, seqno, attributes) {
-  let route,
-    fileName
+  let route, fileName
   if (mail.hasOwnProperty("attachments")) {
-    [route, fileName] = generateName(mail.attachments[0].contentId, mail.attachments[0].generatedFileName)
+    let attachment = mail.attachments[0]
+      [route, fileName] = generateName(attachment.contentId, attachment.generatedFileName)
   } else {
     route = ""
   }
 
-  let mailUid = attributes.uid,
-    toMailbox = '[Gmail]/All Mail',
-    filteredData = {
-      seqno: seqno,
-      attributes: attributes,
-      from: mail.from,
-      receivedDate: mail.receivedDate,
-      date: mail.date,
-      text: mail.text,
-      subject: mail.subject,
-      filePath: route
-    }
+  let mailUid = attributes.uid
+  let toMailbox = '[Gmail]/All Mail'
+  let filteredData = Object.assign(seqno, attributes, route, extractData(mail))
+
   controller.addToRedisQueue(filteredData)
 })
 
 mailListener.on("attachment", function (attachment, mail) {
-  let route,
-    fileName[route, fileName] = generateName(attachment.contentId, attachment.generatedFileName)
+  let [route, fileName] = generateName(attachment.contentId, attachment.generatedFileName)
   let output = fs.createWriteStream(route)
   attachment
     .stream
@@ -79,6 +70,16 @@ mailListener.on("attachment", function (attachment, mail) {
     .stream
     .on('end', logger);
 })
+
+function extractData(email) {
+  return {
+    from: email.from,
+    receivedDate: email.receivedDate,
+    date: email.date,
+    text: email.text,
+    subject: email.subject,
+  }
+}
 
 function markAsSeen(mailUid) {
   console.log('attempting to mark msg read/seen');
