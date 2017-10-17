@@ -113,7 +113,7 @@ getUserToken = function (mail) {
         console.log(err)
         reject(null)
       }
-      console.log(`${user.name}: ${user.token}`)
+      console.log(`${user.mail}: ${user.token}`)
       resolve(user.token)
     })
   })
