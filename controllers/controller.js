@@ -3,8 +3,9 @@
 const redis = require('../config/redis'),
   mongoose = require('mongoose'),
   User = require('../models/user'),
-  requestSender = require('../lib/requestSender')
-redisRequestList = 'Requests',
+  requestSender = require('../lib/requestSender'),
+  emailSender = require('../lib/emailSender'),
+  redisRequestList = 'Requests',
   redisEmailList = 'Emails'
 
 // Add input to Redis Queue
@@ -40,27 +41,37 @@ exports.addToRedisQueue = function (data) {
     } else {
       parsedData = JSON.parse(datum)
       console.log(parsedData)
+
     }
   })
   requestSender.signIn({
-      username: "vjfuenzalida@uc.cl",
+      username: "demo@mail.com",
       password: "123123"
     }).then((resp) => {
       token = resp.token
-      requestSender.getAllProducts(token)
-    })
-    .then(() => {
+      // requestSender.getAllProducts(token)
       let productRequests = parsedData.items['producto'].map(function (product) {
         return requestSender.getProductById(token, product)
       })
+      let subject = `RE: ${parsedData.subject}` 
+      let receiverAddress = parsedData.from[0].address
+      let receiverName = parsedData.from[0].name || receiverAddress
       Promise.all(productRequests).then(values => {
-        console.log(values);
-      })
+          emailSender.sendEmail(receiverAddress, receiverName, subject, values).then((resp) => {
+              console.log("Successfully sent response: " + resp)
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     })
     .catch(function (err) {
       console.log(err)
     })
-  return status
+  return 
 }
 
 exports.associateToken = function (req, res) {

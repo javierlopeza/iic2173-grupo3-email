@@ -2,11 +2,14 @@ const regexIdentifyQueries = /(producto|categor[i,í]a){1}\s*\:{1}\s*[0-9]{1,3}/
 const regexSplitValues = /(?:\s*\:{1}\s*)/i
 
 exports.parseMessage = function (text) {
-  let lines = text.match(regexIdentifyQueries)
-  let commands = lines.map(function (line) {
-    return line.split(regexSplitValues).map((part) => part.toLowerCase().replace("í", "i"))
-  })
-  return queryGrouper(commands)
+  let lines = text.match(regexIdentifyQueries)  
+  if (lines) {
+    let commands = lines.map(function (line) {
+      return line.split(regexSplitValues).map((part) => part.toLowerCase().replace("í", "i"))
+    })
+    return queryGrouper(commands)
+  }
+  return null
 }
 
 function queryGrouper(array) {

@@ -8,5 +8,6 @@ let promise = mongoose.connect(mongoDB, {
 promise.then(function (db) {
   let database = mongoose.connection
   database.on('error', console.error.bind(console, 'MongoDB connection error:'))
+  console.log("Connected to MongoDB")
   module.exports = database
 })

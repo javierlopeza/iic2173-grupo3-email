@@ -53,7 +53,8 @@ app.use(function (err, req, res, next) {
 
 app.listen(app.get('port'), () => {
   console.log('Node app is running on port', app.get('port'))
-  const emailListener = require('./config/emailListener')
+  const emailListener = require('./lib/emailListener')
+  emailListener.start()
 })
 
 module.exports = app // for testing
