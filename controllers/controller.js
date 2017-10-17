@@ -26,7 +26,7 @@ exports.backupRequest = (req, res) => {
 }
 
 exports.addToRedisQueue = function (data) {
-  let status, parsedData, token;
+  let status, parsedData;
   redis.lpush(redisEmailList, JSON.stringify(data), (err, reply) => {
     if (err) {
       status = `Error performing LPUSH on Redis ${redisRequestList} list: ${err}`
@@ -41,20 +41,15 @@ exports.addToRedisQueue = function (data) {
     } else {
       parsedData = JSON.parse(datum)
       console.log(parsedData)
-
     }
   })
-  requestSender.signIn({
-      username: "demo@mail.com",
-      password: "123123"
-    }).then((resp) => {
-      token = resp.token
+  let receiverAddress = parsedData.from[0].address
+  getUserToken(receiverAddress).then((token) => {
       // requestSender.getAllProducts(token)
       let productRequests = parsedData.items['producto'].map(function (product) {
         return requestSender.getProductById(token, product)
       })
-      let subject = `RE: ${parsedData.subject}` 
-      let receiverAddress = parsedData.from[0].address
+      let subject = `RE: ${parsedData.subject}`
       let receiverName = parsedData.from[0].name || receiverAddress
       Promise.all(productRequests).then(values => {
           emailSender.sendEmail(receiverAddress, receiverName, subject, values).then((resp) => {
@@ -71,7 +66,7 @@ exports.addToRedisQueue = function (data) {
     .catch(function (err) {
       console.log(err)
     })
-  return 
+  return
 }
 
 exports.associateToken = function (req, res) {
@@ -98,8 +93,23 @@ exports.associateToken = function (req, res) {
       }
       res.json({
         success: true,
-        msg: 'Successfull associated mail to token.'
+        msg: 'Successful associated mail to token.'
       })
     })
   }
+}
+
+getUserToken = function (mail) {
+  return new Promise(function (resolve, reject) {
+    User.findOne({
+      'mail': mail
+    }, 'mail token', function (err, user) {
+      if (err) {
+        console.log(err)
+        reject(null)
+      }
+      console.log(`${user.name}: ${user.token}`)
+      resolve(user.token)
+    })
+  })
 }
