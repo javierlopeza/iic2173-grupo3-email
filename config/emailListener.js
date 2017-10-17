@@ -4,6 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const rsender = require('../lib/requestSender')
 const msender = require('../lib/emailSender')
+const parseMessage = require('../controllers/helpers').parseMessage
 const directory = path.join(__dirname, '../attachments')
 
 const mailListener = new MailListener({
@@ -52,8 +53,7 @@ mailListener.on("mail", function (mail, seqno, attributes) {
 
   let mailUid = attributes.uid
   let toMailbox = '[Gmail]/All Mail'
-  let filteredData = Object.assign(seqno, attributes, route, extractData(mail))
-
+  let filteredData = Object.assign({seqno}, {attributes}, {route}, extractData(mail))  
   controller.addToRedisQueue(filteredData)
 })
 
@@ -76,7 +76,7 @@ function extractData(email) {
     from: email.from,
     receivedDate: email.receivedDate,
     date: email.date,
-    text: email.text,
+    items: parseMessage(email.text),
     subject: email.subject,
   }
 }

@@ -3,7 +3,8 @@
 const redis = require('../config/redis'),
   mongoose = require('mongoose'),
   User = require('../models/user'),
-  redisRequestList = 'Requests',
+  requestSender = require('../lib/requestSender')
+redisRequestList = 'Requests',
   redisEmailList = 'Emails'
 
 // Add input to Redis Queue
@@ -24,7 +25,7 @@ exports.backupRequest = (req, res) => {
 }
 
 exports.addToRedisQueue = function (data) {
-  let status;
+  let status, parsedData, token;
   redis.lpush(redisEmailList, JSON.stringify(data), (err, reply) => {
     if (err) {
       status = `Error performing LPUSH on Redis ${redisRequestList} list: ${err}`
@@ -33,6 +34,32 @@ exports.addToRedisQueue = function (data) {
     }
     console.log(status)
   })
+  redis.lpop(redisEmailList, function (err, datum) {
+    if (err) {
+      console.log(err)
+    } else {
+      parsedData = JSON.parse(datum)
+      console.log(parsedData)
+    }
+  })
+  requestSender.signIn({
+      username: "vjfuenzalida@uc.cl",
+      password: "123123"
+    }).then((resp) => {
+      token = resp.token
+      requestSender.getAllProducts(token)
+    })
+    .then(() => {
+      let productRequests = parsedData.items['producto'].map(function (product) {
+        return requestSender.getProductById(token, product)
+      })
+      Promise.all(productRequests).then(values => {
+        console.log(values);
+      })
+    })
+    .catch(function (err) {
+      console.log(err)
+    })
   return status
 }
 

@@ -25,6 +25,7 @@
     "email-templates": "^3.0.8",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
+    "https": "^1.0.0",
     "mail-listener2": "^0.3.1",
     "mongoose": "^4.12.2",
     "morgan": "^1.9.0",
