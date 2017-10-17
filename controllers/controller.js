@@ -27,25 +27,30 @@ exports.backupRequest = (req, res) => {
 
 exports.addToRedisQueue = function (data) {
   let status, parsedData;
-  redis.lpush(redisEmailList, JSON.stringify(data), (err, reply) => {
-    if (err) {
-      status = `Error performing LPUSH on Redis ${redisRequestList} list: ${err}`
-    } else {
-      status = `Redis LPUSH to ${redisEmailList} list succeed`
-    }
-    console.log(status)
-  })
-  redis.lpop(redisEmailList, function (err, datum) {
-    if (err) {
-      console.log(err)
-    } else {
-      parsedData = JSON.parse(datum)
-      console.log(parsedData)
-    }
-  })
+  // redis.lpush(redisEmailList, JSON.stringify(data), (err, reply) => {
+  //   if (err) {
+  //     status = `Error performing LPUSH on Redis ${redisRequestList} list: ${err}`
+  //   } else {
+  //     status = `Redis LPUSH to ${redisEmailList} list succeed`
+  //   }
+  //   console.log(status)
+  // })
+  // redis.lpop(redisEmailList, function (err, datum) {
+  //   if (err) {
+  //     console.log(err)
+  //   } else {
+  //     parsedData = JSON.parse(datum)
+  //     console.log(parsedData)
+  //   }
+  // })
+  parsedData = data
   let receiverAddress = parsedData.from[0].address
   getUserToken(receiverAddress).then((token) => {
       // requestSender.getAllProducts(token)
+      if(!token) {
+        console.log("NO TOKEN FOUND")
+        return
+      }
       let productRequests = parsedData.items['producto'].map(function (product) {
         return requestSender.getProductById(token, product)
       })
