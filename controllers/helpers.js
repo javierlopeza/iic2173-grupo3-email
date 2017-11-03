@@ -1,25 +1,20 @@
-const regexIdentifyQueries = /(producto|categor[i,í]a){1}\s*\:{1}\s*[0-9]{1,3}/gim
-const regexSplitValues = /(?:\s*\:{1}\s*)/i
+const regexFindProducts = /(producto){1}\s*:?\s*[0-9]{1,7}/gi
+const regexFindBuyList = /((compra(r|s)?){1}:?\s*(\-{1}\s*(producto){1}\s*[0-9]{1,7}\s*)+){1}/ig
+const regexFindQueryList = /((consulta(r|s)?){1}:?\s*(\-{1}\s*(producto){1}\s*[0-9]{1,7}\s*)+){1}/ig
 
-exports.parseMessage = function (text) {
-  let lines = text.match(regexIdentifyQueries)  
-  if (lines) {
-    let commands = lines.map(function (line) {
-      return line.split(regexSplitValues).map((part) => part.toLowerCase().replace("í", "i"))
-    })
-    return queryGrouper(commands)
-  }
-  return null
+
+function getProductsFromText(text) {
+  let products = text.match(regexFindProducts)
+  return products.map(product => {
+    return product.split(" ")[1]
+  })
 }
 
-function queryGrouper(array) {
-  let hash = array.reduce(function (p, c) {
-    if (p.hasOwnProperty(c[0])) {
-      p[c[0]].push(parseInt(c[1]))
-    } else {
-      p[c[0]] = [parseInt(c[1])]
-    }
-    return p
-  }, {})
-  return hash
+exports.parseMessage = function (text) {
+  let buyLines = text.match(regexFindBuyList) || false
+  let queryLines = text.match(regexFindQueryList) || false
+  let productsToBuy = buyLines ? getProductsFromText(buyLines[0]) : []
+  let productsToQuery = queryLines ? getProductsFromText(queryLines[0]) : []
+  let parsedMessage = { productsToBuy, productsToQuery }
+  return parsedMessage
 }

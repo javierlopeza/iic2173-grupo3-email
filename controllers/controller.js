@@ -51,13 +51,27 @@ exports.addToRedisQueue = function (data) {
         console.log("NO TOKEN FOUND")
         return
       }
-      let productRequests = parsedData.items['producto'].map(function (product) {
+      let productInformationRequests = parsedData.items['productsToQuery'].map(function (product) {
         return requestSender.getProductById(token, product)
       })
+      let productPurchaseRequests = []
+      // TO DO: usar endpoint del server para comprar productos
+      // debe retornar arreglo de Promises!!!
+      // let productPurchaseRequests = parsedData.items['productsToBuy'].map(function (product) {
+      //  return requestSender.buy(token, product)
+      // })
       let subject = `RE: ${parsedData.subject}`
       let receiverName = parsedData.from[0].name || receiverAddress
-      Promise.all(productRequests).then(values => {
-          emailSender.sendEmail(receiverAddress, receiverName, subject, values).then((resp) => {
+      // hacer por separado promise.all
+      let requestPromises = productPurchaseRequests.concat(productInformationRequests)
+      Promise.all(requestPromises).then(values => {
+          // diferenciar values según tipo (resultado compra vs resultado consulta)
+          // TODO: pedirle a server que responda con el tipo de la respuesta
+          // resultado compra, info de producto, etc     
+          let products = values.filter(res => res.type == "query")
+          let purchases = values.filter(res => res.type == "purchase")
+          let info = { products, purchases }
+          emailSender.sendEmail(receiverAddress, receiverName, subject, info).then((resp) => {
               console.log("Successfully sent response: " + resp)
             })
             .catch((err) => {
