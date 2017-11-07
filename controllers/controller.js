@@ -56,13 +56,13 @@ exports.addToRedisQueue = function (data) {
         return requestSender.getProductById(token, product)
       })
       let shoppingCart = {address: parsedData.items['address'], cart: productsToBuy}      
-      let productPurchaseRequests = []
+      let productPurchaseRequest = []
       if(shoppingCart.address == "") { 
         productsToBuy = []
       } else {
-        productPurchaseRequests = requestSender.buy(token, shoppingCart)
+        productPurchaseRequest = [requestSender.buyProducts(token, shoppingCart)]
       }
-      let requestPromises = productPurchaseRequests.concat(productInformationRequests)     
+      let requestPromises = productPurchaseRequest.concat(productInformationRequests)     
       Promise.all(requestPromises).then(values => {
           let purchases = []
           let products = []
@@ -132,9 +132,13 @@ getUserToken = function (mail) {
       if (err) {
         console.log(err)
         reject(null)
+      } if (user) {
+        // console.log(`${user.mail}: ${user.token}`)
+        resolve(user.token)
+      } else {
+        console.log(`user with email ${mail} not found`)
+        resolve("User not found")
       }
-      console.log(`${user.mail}: ${user.token}`)
-      resolve(user.token)
     })
   })
 }
