@@ -46,32 +46,38 @@ exports.addToRedisQueue = function (data) {
   parsedData = data
   let receiverAddress = parsedData.from[0].address
   getUserToken(receiverAddress).then((token) => {
-      // requestSender.getAllProducts(token)
       if(!token) {
         console.log("NO TOKEN FOUND")
         return
       }
-      let productInformationRequests = parsedData.items['productsToQuery'].map(function (product) {
+      let productsToBuy = parsedData.items['productsToBuy']
+      let productsToQuery = parsedData.items['productsToQuery']
+      let productInformationRequests = productsToQuery.map(function (product) {
         return requestSender.getProductById(token, product)
       })
+      let shoppingCart = {address: parsedData.items['address'], cart: productsToBuy}      
       let productPurchaseRequests = []
-      // TO DO: usar endpoint del server para comprar productos
-      // debe retornar arreglo de Promises!!!
-      // let productPurchaseRequests = parsedData.items['productsToBuy'].map(function (product) {
-      //  return requestSender.buy(token, product)
-      // })
-      let subject = `RE: ${parsedData.subject}`
-      let receiverName = parsedData.from[0].name || receiverAddress
-      // hacer por separado promise.all
-      let requestPromises = productPurchaseRequests.concat(productInformationRequests)
+      if(shoppingCart.address == "") { 
+        productsToBuy = []
+      } else {
+        productPurchaseRequests = requestSender.buy(token, shoppingCart)
+      }
+      let requestPromises = productPurchaseRequests.concat(productInformationRequests)     
       Promise.all(requestPromises).then(values => {
-          // diferenciar values según tipo (resultado compra vs resultado consulta)
-          // TODO: pedirle a server que responda con el tipo de la respuesta
-          // resultado compra, info de producto, etc     
-          let products = values.filter(res => res.type == "query")
-          let purchases = values.filter(res => res.type == "purchase")
+          let purchases = []
+          let products = []
+          if(productsToBuy.length != 0) {
+            purchases = values[0]
+            if(productsToQuery.length != 0) {
+              products = values[1, values.length - 1]
+            }
+          } else {
+            products = values
+          }
           let info = { products, purchases }
-          emailSender.sendEmail(receiverAddress, receiverName, subject, info).then((resp) => {
+          let subject = `RE: ${parsedData.subject}`
+          let receiverName = parsedData.from[0].name || receiverAddress
+          emailSender.sendEmail(receiverAddress, receiverName, subject, info).then(resp => {
               console.log("Successfully sent response: " + resp)
             })
             .catch((err) => {
