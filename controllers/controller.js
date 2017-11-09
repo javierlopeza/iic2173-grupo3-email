@@ -50,12 +50,16 @@ exports.addToRedisQueue = function (data) {
         console.log("NO TOKEN FOUND")
         return
       }
+      console.log(`[VALID TOKEN] starting server requests`)
       let productsToBuy = parsedData.items['productsToBuy']
+      console.log(`[PARAMETERS] Purchases: ${JSON.stringify(productsToBuy)}`)
       let productsToQuery = parsedData.items['productsToQuery']
+      console.log(`[PARAMETERS] Queries: ${JSON.stringify(productsToQuery)}`)
       let productInformationRequests = productsToQuery.map(function (product) {
         return requestSender.getProductById(token, product)
       })
       let shoppingCart = {address: parsedData.items['address'], cart: productsToBuy}      
+      console.log(`[BUILT BODY] Shopping cart: ${JSON.stringify(shoppingCart)}`)
       let productPurchaseRequest = []
       if(shoppingCart.address == "") { 
         productsToBuy = []
@@ -68,11 +72,14 @@ exports.addToRedisQueue = function (data) {
           let products = []
           if(productsToBuy.length != 0) {
             purchases = values[0]
+            console.log(`[RESPONSES] Purchases: ${JSON.stringify(purchases)}`)
             if(productsToQuery.length != 0) {
               products = values.slice(1,)
+              console.log(`[RESPONSES] Queries: ${JSON.stringify(products)}`)
             }
           } else {
             products = values
+            console.log(`[RESPONSES] Queries: ${JSON.stringify(products)}`)
           }
           let info = { products, purchases }
           let subject = `RE: ${parsedData.subject}`
