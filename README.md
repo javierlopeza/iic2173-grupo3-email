@@ -103,7 +103,7 @@ comprar:
 dirección: Av. Mi calle 123
 ```
 
-where `X, Y and Z` should be product IDs (any amount of spaces are allowed between the colon character and the *producto* or *ID*), `a, b and c` the amounts to order and the field `dirección` the adress for delivering purposes.  
+where `X, Y and Z` should be product IDs (any amount of spaces are allowed between the colon character and the *producto* or *ID*), `a, b and c` the amounts to order and the field `dirección` the address to delivery.  
 
 Some of the keywords admit modifications, such as:
 
