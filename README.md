@@ -82,14 +82,38 @@ In case you are running this application locally, the application will only be a
 
 To use the already deployed service, simply send an email to the address  `grupo3mailer@gmail.com`, with the following **body structure**:
 
-```
-producto: X
-producto: Y
-producto: Z
+**To query products information:**
 
+```
+consultas:
+- producto X
+- producto Y
+- producto Z
+
+```
+
+**To query products information:**
+
+```
+comprar: 
+- producto X: a unidad
+- producto Y: b unidades
+- producto Z: c unidades
 ```
 
 where `X, Y and Z` should be product IDs (any amount of spaces are allowed between the colon character and the *producto* or *ID*).  
+
+Some of the keywords admit modifications, such as:
+
+* comprar/compras/compra
+* consultar/consultas/consulta
+* unidad/unidades
+
+### IMPORTANT: 
+
+* the keywords *comprar* and *consultar* must be present in order to identify each section.
+
+* It is possible to either buy (*comprar*), query (*consultar*), or both, but the keywords mentioned before must be present to differentiate this actions.
 
 The **subject** isn't restricted to anything, and any other text can be added as details in the **body structure**, for example:
 
