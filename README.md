@@ -85,7 +85,7 @@ To use the already deployed service, simply send an email to the address  `grupo
 **To query products information:**
 
 ```
-consultas:
+consultar:
 - producto X
 - producto Y
 - producto Z
@@ -115,6 +115,21 @@ Some of the keywords admit modifications, such as:
 
 * It is possible to either buy (*comprar*), query (*consultar*), or both, but the keywords mentioned before must be present to differentiate this actions.
 
+#### For example, this is valid:
+
+```
+consultar:
+- producto X
+- producto Y
+- producto Z
+
+comprar: 
+- producto X: a unidad
+- producto Y: b unidades
+- producto Z: c unidades
+```
+
+
 The **subject** isn't restricted to anything, and any other text can be added as details in the **body structure**, for example:
 
 ### Example email request
@@ -127,7 +142,8 @@ As the example shows, any other text will be ignored by the Email-Bot, so the it
 
 ![alt text](./resources/sample-response.png "Email Response Example")
 
-A common response will include a message, followed by a table detailing the requested products (`id`, `name`, `price` and `category data`).
+A common response will contain the result of the purchase transaction if it exists (accepted and rejected products), and the information about the queried products.
+
 
 
 ## Authors
