@@ -69,7 +69,7 @@ exports.addToRedisQueue = function (data) {
           if(productsToBuy.length != 0) {
             purchases = values[0]
             if(productsToQuery.length != 0) {
-              products = values[1, values.length - 1]
+              products = values.slice(1,)
             }
           } else {
             products = values
@@ -137,7 +137,7 @@ getUserToken = function (mail) {
         resolve(user.token)
       } else {
         console.log(`user with email ${mail} not found`)
-        resolve("User not found")
+        resolve("not found")
       }
     })
   })
