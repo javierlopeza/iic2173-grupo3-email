@@ -92,26 +92,29 @@ consultar:
 
 ```
 
-**To query products information:**
+**To buy a certain amount of products:**
 
 ```
 comprar: 
 - producto X: a unidad
 - producto Y: b unidades
 - producto Z: c unidades
+
+dirección: Av. Mi calle 123
 ```
 
-where `X, Y and Z` should be product IDs (any amount of spaces are allowed between the colon character and the *producto* or *ID*).  
+where `X, Y and Z` should be product IDs (any amount of spaces are allowed between the colon character and the *producto* or *ID*), `a, b and c` the amounts to order and the field `dirección` the adress for delivering purposes.  
 
 Some of the keywords admit modifications, such as:
 
 * comprar/compras/compra
 * consultar/consultas/consulta
 * unidad/unidades
+* dirección/direccion
 
 ### IMPORTANT: 
 
-* the keywords *comprar* and *consultar* must be present in order to identify each section.
+* the keywords *comprar*, *consultar* and *dirección* must be present in order to identify each section.
 
 * It is possible to either buy (*comprar*), query (*consultar*), or both, but the keywords mentioned before must be present to differentiate this actions.
 
