@@ -4,7 +4,7 @@ const regexFindBuyList = /((compra(r|s)?){1}\s*:?\s*(\-{1}.*\n+)+){1}/im
 const regexFindProductsToBuy = /(producto(|s)?){1}\s*:?\s*[0-9]{1,7}\s*:{1}\s+[0-9]{1,7}(\s*(unidad(|es)?))?\n{1}/gmi
 const regexFindQueryList = /((consulta(r|s)?){1}\s*:?\s*(\-{1}.*\n+)+){1}/img
 const regexFindProductsToQuery = /(producto){1}\s*:?\s*[0-9]{1,7}\n{1}/gi
-const regexFindAddress = /(direcci[oó]{1}n){1}\s*\:{1}[^\n]*[^\s]+/im
+const regexFindAddress = /(\bdirecci[oó]{1}n\b){1}\s*\:{1}[^\n]*[^\s]+/i
 
 function getProductsToQuery(text) {
   let products = text.match(regexFindProductsToQuery)
@@ -33,7 +33,7 @@ exports.parseMessage = function (text) {
   let buyLines = text.match(regexFindBuyList) || false
   let queryLines = text.match(regexFindQueryList) || false
   let addressMatches = text.match(regexFindAddress) || false
-  let address = addressMatches ? addressMatches[0] : ""
+  let address = addressMatches ? addressMatches[0].split(/(\bdirecci[oó]{1}n\b){1}\s*\:{1}\s*/i).slice(-1) : ""
   let productsToBuy = buyLines ? getProductsToBuy(buyLines[0]) : []
   let productsToQuery = queryLines ? getProductsToQuery(queryLines[0]) : []
   let parsedMessage = { productsToBuy, productsToQuery, address }

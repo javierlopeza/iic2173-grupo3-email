@@ -26,27 +26,27 @@ exports.backupRequest = (req, res) => {
 }
 
 exports.addToRedisQueue = function (data) {
-  let status, parsedData;
-  // redis.lpush(redisEmailList, JSON.stringify(data), (err, reply) => {
-  //   if (err) {
-  //     status = `Error performing LPUSH on Redis ${redisRequestList} list: ${err}`
-  //   } else {
-  //     status = `Redis LPUSH to ${redisEmailList} list succeed`
-  //   }
-  //   console.log(status)
-  // })
-  // redis.lpop(redisEmailList, function (err, datum) {
-  //   if (err) {
-  //     console.log(err)
-  //   } else {
-  //     parsedData = JSON.parse(datum)
-  //     console.log(parsedData)
-  //   }
-  // })
+  let status, parsedData
   parsedData = data
+  redis.lpush(redisEmailList, JSON.stringify(data), (err, reply) => {
+    if (err) {
+      status = `Error performing LPUSH on Redis ${redisRequestList} list: ${err}`
+    } else {
+      status = `Redis LPUSH to ${redisEmailList} list succeed`
+    }
+    console.log(status)
+  })
+  redis.lpop(redisEmailList, function (err, datum) {
+    if (err) {
+      console.log(err)
+    } else {
+      parsedData = JSON.parse(datum)
+      console.log(parsedData)
+    }
+  })
   let receiverAddress = parsedData.from[0].address
   getUserToken(receiverAddress).then((token) => {
-      if(!token) {
+      if (!token) {
         console.log("NO TOKEN FOUND")
         return
       }
@@ -58,30 +58,41 @@ exports.addToRedisQueue = function (data) {
       let productInformationRequests = productsToQuery.map(function (product) {
         return requestSender.getProductById(token, product)
       })
-      let shoppingCart = {address: parsedData.items['address'], cart: productsToBuy}      
+      let shoppingCart = {
+        address: parsedData.items['address'],
+        cart: productsToBuy
+      }
       console.log(`[BUILT BODY] Shopping cart: ${JSON.stringify(shoppingCart)}`)
       let productPurchaseRequest = []
-      if(shoppingCart.address == "") { 
+      let purchaseRequested = shoppingCart.cart.length > 0
+      let validAddress = shoppingCart.address != ""
+      if (shoppingCart.address == "") {
         productsToBuy = []
       } else {
         productPurchaseRequest = [requestSender.buyProducts(token, shoppingCart)]
       }
-      let requestPromises = productPurchaseRequest.concat(productInformationRequests)     
+      let requestPromises = productPurchaseRequest.concat(productInformationRequests)
       Promise.all(requestPromises).then(values => {
           let purchases = []
           let products = []
-          if(productsToBuy.length != 0) {
+          if (productsToBuy.length != 0) {
             purchases = values[0]
             console.log(`[RESPONSES] Purchases: ${JSON.stringify(purchases)}`)
-            if(productsToQuery.length != 0) {
-              products = values.slice(1,)
+            if (productsToQuery.length != 0) {
+              products = values.slice(1, )
               console.log(`[RESPONSES] Queries: ${JSON.stringify(products)}`)
             }
           } else {
             products = values
             console.log(`[RESPONSES] Queries: ${JSON.stringify(products)}`)
           }
-          let info = { products, purchases }
+          let info = {
+            deliveryAddress: shoppingCart.address,
+            products,
+            purchases,
+            purchaseRequested,
+            validAddress            
+          }
           let subject = `RE: ${parsedData.subject}`
           let receiverName = parsedData.from[0].name || receiverAddress
           emailSender.sendEmail(receiverAddress, receiverName, subject, info).then(resp => {
@@ -102,30 +113,42 @@ exports.addToRedisQueue = function (data) {
 }
 
 exports.associateToken = function (req, res) {
-  console.log('received')
+  console.log('received new token from web sign up')
   if (!req.body.mail || !req.body.token) {
     res.json({
       success: false,
       msg: 'Please pass mail and token.'
     })
   } else {
-    console.log('Im here')
-    var newUser = new User({
-      mail: req.body.mail,
-      token: req.body.token
-    })
-    // save the user
-    newUser.save(function (err) {
-      if (err) {
-        res.json({
-          success: false,
-          msg: 'Mail already exists.'
+    User.findOne({
+      mail: req.body.mail
+    }, 'mail token', function (err, user) {
+      let newUser = null
+      if (user == null) {
+        console.log("User not found, proceding to create new user")
+        newUser = new User({
+          mail: req.body.mail,
+          token: req.body.token
         })
-        return
+      } else {
+        console.log("User found, proceding to update token")
+        newUser = user
+        newUser.token = req.body.token
       }
-      res.json({
-        success: true,
-        msg: 'Successful associated mail to token.'
+      newUser.save(err => {        
+        if (err) {
+          console.log("Couldn't save new token for user " + newUser.mail)
+          res.json({
+            success: false,
+            msg: 'Mail already exists.'
+          })
+          return
+        }
+        console.log("Successfully saved token for " + newUser.mail)
+        res.json({
+          success: true,
+          msg: 'Successful associated mail to token.'
+        })
       })
     })
   }
@@ -139,7 +162,8 @@ getUserToken = function (mail) {
       if (err) {
         console.log(err)
         reject(null)
-      } if (user) {
+      }
+      if (user) {
         // console.log(`${user.mail}: ${user.token}`)
         resolve(user.token)
       } else {
